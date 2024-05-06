@@ -1,0 +1,505 @@
+{
+  "$defs": {
+    "Attribute": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "description": "description of the attribute.",
+          "type": "string"
+        },
+        "enum": {
+          "description": " array of attribute values if they are static values (currently, only string type is supported).",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "exclude": {
+          "items": {
+            "$ref": "#/$defs/FilterConfig"
+          },
+          "type": "array"
+        },
+        "include": {
+          "items": {
+            "$ref": "#/$defs/FilterConfig"
+          },
+          "type": "array"
+        },
+        "name_override": {
+          "description": "this field can be used to override the actual attribute name defined by the key. It should be used if multiple metrics have different attributes with the same name.",
+          "type": "string"
+        },
+        "type": {
+          "description": "attribute value type.",
+          "enum": [
+            "string",
+            "int",
+            "double",
+            "bool",
+            "bytes",
+            "slice",
+            "map"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "description",
+        "type"
+      ],
+      "type": "object"
+    },
+    "Codeowners": {
+      "additionalProperties": false,
+      "properties": {
+        "active": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "emeritus": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "seeking_new": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "FilterConfig": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "strict",
+            "regexp"
+          ],
+          "title": "filter"
+        }
+      ],
+      "properties": {
+        "regexp": {
+          "type": "string"
+        },
+        "strict": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "Gauge": {
+      "additionalProperties": false,
+      "properties": {
+        "input_type": {
+          "description": "Indicates the type the metric needs to be parsed from. If set, the generated functions will parse the value from string to value_type.",
+          "type": "string"
+        },
+        "value_type": {
+          "description": "type of number data point values.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "value_type"
+      ],
+      "type": "object"
+    },
+    "GoLeak": {
+      "additionalProperties": false,
+      "properties": {
+        "ignore": {
+          "$ref": "#/$defs/Ignore"
+        },
+        "setup": {
+          "description": "upports configuring a setup function that runs before goleak checks",
+          "type": "string"
+        },
+        "skip": {
+          "description": "set to true if goleak tests should be skipped",
+          "type": "boolean"
+        },
+        "teardown": {
+          "description": "supports configuring a teardown function that runs before goleak checks",
+          "type": "string"
+        }
+      },
+      "required": [
+        "skip",
+        "setup",
+        "teardown"
+      ],
+      "type": "object"
+    },
+    "Ignore": {
+      "additionalProperties": false,
+      "properties": {
+        "any": {
+          "description": "array of strings representing functions that should be ignore via IgnoreAnyFunction",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "top": {
+          "description": "array of strings representing functions that should be ignore via IgnoreTopFunction",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "Metadata": {
+      "additionalProperties": false,
+      "properties": {
+        "attributes": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Attribute"
+          },
+          "description": "map of attribute definitions with the key being the attribute name and value being described below.",
+          "type": "object"
+        },
+        "metrics": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Metric"
+          },
+          "description": "map of metric names with the key being the metric name and valuem being described below.",
+          "type": "object"
+        },
+        "parent": {
+          "description": "Required for subcomponents: The type of the parent component.",
+          "type": "string"
+        },
+        "resource_attributes": {
+          "additionalProperties": {
+            "$ref": "#/$defs/ResourceAttribute"
+          },
+          "description": "map of resource attribute definitions with the key being the attribute name.",
+          "type": "object"
+        },
+        "scope_name": {
+          "type": "string"
+        },
+        "sem_conv_version": {
+          "description": "OTel Semantic Conventions version that will be associated with the scraped metrics. This attribute should be set for metrics compliant with OTel Semantic Conventions.",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/Status",
+          "description": "Required for components (Optional for subcomponents): A high-level view of the development status and use of this component"
+        },
+        "telemetry": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Metric"
+          },
+          "description": "map of metric names with the key being the metric name and valuem being described below.",
+          "type": "object"
+        },
+        "tests": {
+          "$ref": "#/$defs/Tests",
+          "description": "Lifecycle tests generated for this component."
+        },
+        "type": {
+          "description": "The type of the component - Usually the name. The type and class combined uniquely identify the component (eg. receiver/otlp) or subcomponent (eg. receiver/hostmetricsreceiver/cpu)",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "metrics"
+      ],
+      "type": "object"
+    },
+    "Metric": {
+      "additionalProperties": false,
+      "properties": {
+        "attributes": {
+          "description": "array of attributes that were defined in the attributes section that are emitted by this metric.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "description": {
+          "description": "metric description.",
+          "type": "string"
+        },
+        "enabled": {
+          "description": "whether the metric is collected by default.",
+          "type": "boolean"
+        },
+        "extended_documentation": {
+          "description": "extended documentation of the metric.",
+          "type": "string"
+        },
+        "gauge": {
+          "$ref": "#/$defs/Gauge",
+          "description": "metric type with its settings."
+        },
+        "sum": {
+          "$ref": "#/$defs/Sum",
+          "description": "metric type with its settings."
+        },
+        "unit": {
+          "description": "metric unit as defined by https://ucum.org/ucum.html.",
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "warnings": {
+          "$ref": "#/$defs/Warnings",
+          "description": "warnings that will be shown to user under specified conditions."
+        }
+      },
+      "required": [
+        "enabled",
+        "description",
+        "unit"
+      ],
+      "type": "object"
+    },
+    "ResourceAttribute": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "description": "description of the attribute.",
+          "type": "string"
+        },
+        "enabled": {
+          "description": "whether the resource attribute is added the emitted metrics by default.",
+          "type": "boolean"
+        },
+        "enum": {
+          "description": "array of attribute values if they are static values (currently, only string type is supported).",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "exclude": {
+          "items": {
+            "$ref": "#/$defs/FilterConfig"
+          },
+          "type": "array"
+        },
+        "include": {
+          "items": {
+            "$ref": "#/$defs/FilterConfig"
+          },
+          "type": "array"
+        },
+        "type": {
+          "description": "attribute value type.",
+          "enum": [
+            "string",
+            "int",
+            "double",
+            "bool",
+            "bytes",
+            "slice",
+            "map"
+          ],
+          "type": "string"
+        },
+        "warnings": {
+          "$ref": "#/$defs/Warnings",
+          "description": "warnings that will be shown to user under specified conditions."
+        }
+      },
+      "required": [
+        "description",
+        "enabled",
+        "type"
+      ],
+      "type": "object"
+    },
+    "Stability": {
+      "additionalProperties": false,
+      "properties": {
+        "alpha": {
+          "items": {
+            "$ref": "#/$defs/StabilityItem"
+          },
+          "type": "array"
+        },
+        "beta": {
+          "items": {
+            "$ref": "#/$defs/StabilityItem"
+          },
+          "type": "array"
+        },
+        "deprecated": {
+          "items": {
+            "$ref": "#/$defs/StabilityItem"
+          },
+          "type": "array"
+        },
+        "development": {
+          "items": {
+            "$ref": "#/$defs/StabilityItem"
+          },
+          "type": "array"
+        },
+        "stable": {
+          "items": {
+            "$ref": "#/$defs/StabilityItem"
+          },
+          "type": "array"
+        },
+        "unmaintained": {
+          "items": {
+            "$ref": "#/$defs/StabilityItem"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "StabilityItem": {
+      "enum": [
+        "metrics",
+        "traces",
+        "logs",
+        "traces_to_metrics",
+        "metrics_to_metrics",
+        "logs_to_metrics",
+        "extension"
+      ],
+      "type": "string"
+    },
+    "Status": {
+      "additionalProperties": false,
+      "properties": {
+        "class": {
+          "description": "The class of the component (For example receiver)",
+          "enum": [
+            "receiver",
+            "processor",
+            "exporter",
+            "connector",
+            "extension",
+            "cmd",
+            "pkg"
+          ],
+          "type": "string"
+        },
+        "codeowners": {
+          "$ref": "#/$defs/Codeowners",
+          "description": "Metadata related to codeowners of the component"
+        },
+        "distributions": {
+          "description": "The distributions that this component is bundled with (For example core or contrib). See statusdata.go for a list of common distros.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "stability": {
+          "$ref": "#/$defs/Stability",
+          "description": "The stability of the component - See https://github.com/open-telemetry/opentelemetry-collector#stability-levels"
+        },
+        "unsupported_platforms": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "warnings": {
+          "description": "A list of warnings that should be brought to the attention of users looking to use this component",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "stability",
+        "distributions",
+        "class",
+        "unsupported_platforms"
+      ],
+      "type": "object"
+    },
+    "Sum": {
+      "additionalProperties": false,
+      "properties": {
+        "aggregation_temporality": {
+          "description": "whether reported values incorporate previous measurements (cumulative) or not (delta).",
+          "type": "string"
+        },
+        "input_type": {
+          "description": "Indicates the type the metric needs to be parsed from. If set, the generated functions will parse the value from string to value_type.",
+          "type": "string"
+        },
+        "monotonic": {
+          "description": "whether the metric is monotonic (no negative delta values).",
+          "type": "boolean"
+        },
+        "value_type": {
+          "description": "type of number data point values.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "aggregation_temporality",
+        "monotonic",
+        "value_type"
+      ],
+      "type": "object"
+    },
+    "Tests": {
+      "additionalProperties": false,
+      "properties": {
+        "config": {
+          "description": "{} by default, specific testing configuration for lifecycle tests."
+        },
+        "expect_consumer_error": {
+          "description": "Whether it's expected that the Consume[Logs|Metrics|Traces] method will return an error with the given configuration.",
+          "type": "boolean"
+        },
+        "goleak": {
+          "$ref": "#/$defs/GoLeak",
+          "description": "{} by default generates a package_test to enable check for leaks"
+        },
+        "skip_lifecycle": {
+          "description": "false by default Skip lifecycle tests for this component. Not recommended for components that are not in development.",
+          "type": "boolean"
+        },
+        "skip_shutdown": {
+          "description": "false by default Skip shutdown tests for this component. Not recommended for components that are not in development.",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "Warnings": {
+      "additionalProperties": false,
+      "properties": {
+        "if_configured": {
+          "type": "string"
+        },
+        "if_enabled": {
+          "type": "string"
+        },
+        "if_enabled_not_set": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "$id": "https://github.com/Arthur1/otelcol-metadata-schema/metadata",
+  "$ref": "#/$defs/Metadata",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}
