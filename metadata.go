@@ -22,11 +22,11 @@ type Metadata struct {
 
 type Status struct {
 	Stability            Stability   `json:"stability" jsonschema_description:"The stability of the component - See https://github.com/open-telemetry/opentelemetry-collector#stability-levels"`
-	Distributions        []string    `json:"distributions" jsonschema_description:"The distributions that this component is bundled with (For example core or contrib). See statusdata.go for a list of common distros."`
+	Distributions        []string    `json:"distributions,omitempty" jsonschema_description:"The distributions that this component is bundled with (For example core or contrib). See statusdata.go for a list of common distros."`
 	Class                string      `json:"class" jsonschema:"enum=receiver,enum=processor,enum=exporter,enum=connector,enum=extension,enum=cmd,enum=pkg" jsonschema_description:"The class of the component (For example receiver)"`
 	Warnings             []string    `json:"warnings,omitempty" jsonschema_description:"A list of warnings that should be brought to the attention of users looking to use this component"`
 	Codeowners           *Codeowners `json:"codeowners,omitempty" jsonschema_description:"Metadata related to codeowners of the component"`
-	UnsupportedPlatforms []string    `json:"unsupported_platforms"`
+	UnsupportedPlatforms []string    `json:"unsupported_platforms,omitempty"`
 }
 
 type Stability struct {

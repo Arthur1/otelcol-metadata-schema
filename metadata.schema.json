@@ -425,9 +425,7 @@
       },
       "required": [
         "stability",
-        "distributions",
-        "class",
-        "unsupported_platforms"
+        "class"
       ],
       "type": "object"
     },
