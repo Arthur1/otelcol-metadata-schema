@@ -128,8 +128,8 @@ type Tests struct {
 type GoLeak struct {
 	Skip     bool   `json:"skip" jsonschema_description:"set to true if goleak tests should be skipped"`
 	Ignore   Ignore `json:"ignore,omitempty"`
-	Setup    string `json:"setup" jsonschema_description:"upports configuring a setup function that runs before goleak checks"`
-	Teardown string `json:"teardown" jsonschema_description:"supports configuring a teardown function that runs before goleak checks"`
+	Setup    string `json:"setup,omitempty" jsonschema_description:"upports configuring a setup function that runs before goleak checks"`
+	Teardown string `json:"teardown,omitempty" jsonschema_description:"supports configuring a teardown function that runs before goleak checks"`
 }
 
 type Ignore struct {

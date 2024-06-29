@@ -129,9 +129,7 @@
         }
       },
       "required": [
-        "skip",
-        "setup",
-        "teardown"
+        "skip"
       ],
       "type": "object"
     },
