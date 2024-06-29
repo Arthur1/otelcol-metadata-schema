@@ -13,7 +13,7 @@ type Metadata struct {
 	SemConvVersion     string                              `json:"sem_conv_version,omitempty" jsonschema_description:"OTel Semantic Conventions version that will be associated with the scraped metrics. This attribute should be set for metrics compliant with OTel Semantic Conventions."`
 	ResourceAttributes map[AttributeName]ResourceAttribute `json:"resource_attributes,omitempty" jsonschema_description:"map of resource attribute definitions with the key being the attribute name."`
 	Attributes         map[AttributeName]Attribute         `json:"attributes,omitempty" jsonschema_description:"map of attribute definitions with the key being the attribute name and value being described below."`
-	Metrics            map[MetricName]Metric               `json:"metrics" jsonschema_description:"map of metric names with the key being the metric name and valuem being described below."`
+	Metrics            map[MetricName]Metric               `json:"metrics,omitempty" jsonschema_description:"map of metric names with the key being the metric name and valuem being described below."`
 	Telemetry          map[MetricName]Metric               `json:"telemetry,omitempty" jsonschema_description:"map of metric names with the key being the metric name and valuem being described below."`
 	ScopeName          string                              `json:"scope_name,omitempty"`
 	// ShortFolderName    string               `json:"-"`

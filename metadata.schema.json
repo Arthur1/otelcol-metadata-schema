@@ -209,8 +209,7 @@
         }
       },
       "required": [
-        "type",
-        "metrics"
+        "type"
       ],
       "type": "object"
     },
