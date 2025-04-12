@@ -5,6 +5,7 @@ import "github.com/invopop/jsonschema"
 // cf.)
 // - https://github.com/open-telemetry/opentelemetry-collector/blob/main/cmd/mdatagen/metadata-schema.yaml
 // - https://github.com/open-telemetry/opentelemetry-collector/blob/main/cmd/mdatagen/loader.go
+// - https://github.com/open-telemetry/opentelemetry-collector/blob/main/cmd/mdatagen/internal/metadata.go
 
 type Metadata struct {
 	Type               string                              `json:"type" jsonschema_description:"The type of the component - Usually the name. The type and class combined uniquely identify the component (eg. receiver/otlp) or subcomponent (eg. receiver/hostmetricsreceiver/cpu)"`
@@ -91,14 +92,31 @@ type FilterConfig struct {
 type MetricName string
 
 type Metric struct {
-	Enabled               bool            `json:"enabled" jsonschema_description:"whether the metric is collected by default."`
-	Warnings              Warnings        `json:"warnings,omitempty" jsonschema_description:"warnings that will be shown to user under specified conditions."`
-	Description           string          `json:"description" jsonschema_description:"metric description."`
-	ExtendedDocumentation string          `json:"extended_documentation,omitempty" jsonschema_description:"extended documentation of the metric."`
-	Unit                  *string         `json:"unit" jsonschema:"oneof_type=string;number" jsonschema_description:"metric unit as defined by https://ucum.org/ucum.html."`
-	Sum                   *Sum            `json:"sum,omitempty" jsonschema:"oneof_required:metrictype" jsonschema_description:"metric type with its settings."`
-	Gauge                 *Gauge          `json:"gauge,omitempty" jsonschema:"oneof_required:metrictype" jsonschema_description:"metric type with its settings."`
-	Attributes            []AttributeName `json:"attributes,omitempty" jsonschema_description:"array of attributes that were defined in the attributes section that are emitted by this metric."`
+	Enabled               bool                `json:"enabled" jsonschema_description:"whether the metric is collected by default."`
+	Warnings              Warnings            `json:"warnings,omitempty" jsonschema_description:"warnings that will be shown to user under specified conditions."`
+	Description           string              `json:"description" jsonschema_description:"metric description."`
+	Stability             *TelemetryStability `json:"stability,omitempty" jsonschema_description:"the stability level of the metric."`
+	ExtendedDocumentation string              `json:"extended_documentation,omitempty" jsonschema_description:"extended documentation of the metric."`
+	Unit                  *string             `json:"unit" jsonschema:"oneof_type=string;number" jsonschema_description:"metric unit as defined by https://ucum.org/ucum.html."`
+	Sum                   *Sum                `json:"sum,omitempty" jsonschema:"oneof_required:metrictype" jsonschema_description:"metric type with its settings."`
+	Gauge                 *Gauge              `json:"gauge,omitempty" jsonschema:"oneof_required:metrictype" jsonschema_description:"metric type with its settings."`
+	Attributes            []AttributeName     `json:"attributes,omitempty" jsonschema_description:"array of attributes that were defined in the attributes section that are emitted by this metric."`
+}
+
+type TelemetryStability struct {
+	Level TelemetryStabilityLevel `json:"level,omitempty" jsonschema_description:"the stability level."`
+	From  string                  `json:"from,omitempty" jsonschema_description:"the version of the component from which the stability level is set."`
+}
+
+type TelemetryStabilityLevel string
+
+func (TelemetryStabilityLevel) JSONSchema() *jsonschema.Schema {
+	return &jsonschema.Schema{
+		Type: "string",
+		Enum: []any{
+			"development", "alpha", "beta", "stable", "deprecated", "unmaintained",
+		},
+	}
 }
 
 type Sum struct {

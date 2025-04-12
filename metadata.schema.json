@@ -236,6 +236,10 @@
           "$ref": "#/$defs/Gauge",
           "description": "metric type with its settings."
         },
+        "stability": {
+          "$ref": "#/$defs/TelemetryStability",
+          "description": "the stability level of the metric."
+        },
         "sum": {
           "$ref": "#/$defs/Sum",
           "description": "metric type with its settings."
@@ -461,6 +465,31 @@
         }
       },
       "type": "object"
+    },
+    "TelemetryStability": {
+      "additionalProperties": false,
+      "properties": {
+        "from": {
+          "description": "the version of the component from which the stability level is set.",
+          "type": "string"
+        },
+        "level": {
+          "$ref": "#/$defs/TelemetryStabilityLevel",
+          "description": "the stability level."
+        }
+      },
+      "type": "object"
+    },
+    "TelemetryStabilityLevel": {
+      "enum": [
+        "development",
+        "alpha",
+        "beta",
+        "stable",
+        "deprecated",
+        "unmaintained"
+      ],
+      "type": "string"
     },
     "Tests": {
       "additionalProperties": false,
