@@ -193,11 +193,8 @@
           "description": "Required for components (Optional for subcomponents): A high-level view of the development status and use of this component"
         },
         "telemetry": {
-          "additionalProperties": {
-            "$ref": "#/$defs/Metric"
-          },
-          "description": "map of metric names with the key being the metric name and valuem being described below.",
-          "type": "object"
+          "$ref": "#/$defs/Telemetry",
+          "description": "Telemetry metadata for the component"
         },
         "tests": {
           "$ref": "#/$defs/Tests",
@@ -451,6 +448,18 @@
         "monotonic",
         "value_type"
       ],
+      "type": "object"
+    },
+    "Telemetry": {
+      "additionalProperties": false,
+      "properties": {
+        "metrics": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Metric"
+          },
+          "type": "object"
+        }
+      },
       "type": "object"
     },
     "Tests": {

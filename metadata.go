@@ -14,7 +14,7 @@ type Metadata struct {
 	ResourceAttributes map[AttributeName]ResourceAttribute `json:"resource_attributes,omitempty" jsonschema_description:"map of resource attribute definitions with the key being the attribute name."`
 	Attributes         map[AttributeName]Attribute         `json:"attributes,omitempty" jsonschema_description:"map of attribute definitions with the key being the attribute name and value being described below."`
 	Metrics            map[MetricName]Metric               `json:"metrics,omitempty" jsonschema_description:"map of metric names with the key being the metric name and valuem being described below."`
-	Telemetry          map[MetricName]Metric               `json:"telemetry,omitempty" jsonschema_description:"map of metric names with the key being the metric name and valuem being described below."`
+	Telemetry          *Telemetry                          `json:"telemetry,omitempty" jsonschema_description:"Telemetry metadata for the component"`
 	ScopeName          string                              `json:"scope_name,omitempty"`
 	// ShortFolderName    string               `json:"-"`
 	Tests Tests `json:"tests,omitempty" jsonschema_description:"Lifecycle tests generated for this component."`
@@ -54,6 +54,10 @@ type Codeowners struct {
 	Active     []string `json:"active,omitempty"`
 	Emeritus   []string `json:"emeritus,omitempty"`
 	SeekingNew bool     `json:"seeking_new,omitempty"`
+}
+
+type Telemetry struct {
+	Metrics map[MetricName]Metric `json:"metrics,omitempty"`
 }
 
 type AttributeName string
