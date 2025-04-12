@@ -448,8 +448,6 @@
         }
       },
       "required": [
-        "aggregation_temporality",
-        "monotonic",
         "value_type"
       ],
       "type": "object"

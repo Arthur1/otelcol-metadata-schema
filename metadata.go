@@ -120,8 +120,8 @@ func (TelemetryStabilityLevel) JSONSchema() *jsonschema.Schema {
 }
 
 type Sum struct {
-	AggregationTemporality string `json:"aggregation_temporality" jsonschema_description:"whether reported values incorporate previous measurements (cumulative) or not (delta)."`
-	Mono                   bool   `json:"monotonic" jsonschema_description:"whether the metric is monotonic (no negative delta values)."`
+	AggregationTemporality string `json:"aggregation_temporality,omitempty" jsonschema_description:"whether reported values incorporate previous measurements (cumulative) or not (delta)."`
+	Mono                   bool   `json:"monotonic,omitempty" jsonschema_description:"whether the metric is monotonic (no negative delta values)."`
 	MetricValueType        string `json:"value_type" jsonschema_description:"type of number data point values."`
 	MetricInputType        string `json:"input_type,omitempty" jsonschema_description:"Indicates the type the metric needs to be parsed from. If set, the generated functions will parse the value from string to value_type."`
 }
