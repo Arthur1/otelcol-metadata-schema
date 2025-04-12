@@ -5,6 +5,7 @@ import "github.com/invopop/jsonschema"
 // cf.)
 // - https://github.com/open-telemetry/opentelemetry-collector/blob/main/cmd/mdatagen/metadata-schema.yaml
 // - https://github.com/open-telemetry/opentelemetry-collector/blob/main/cmd/mdatagen/loader.go
+// - https://github.com/open-telemetry/opentelemetry-collector/blob/main/cmd/mdatagen/internal/metadata.go
 
 type Metadata struct {
 	Type               string                              `json:"type" jsonschema_description:"The type of the component - Usually the name. The type and class combined uniquely identify the component (eg. receiver/otlp) or subcomponent (eg. receiver/hostmetricsreceiver/cpu)"`
@@ -14,7 +15,7 @@ type Metadata struct {
 	ResourceAttributes map[AttributeName]ResourceAttribute `json:"resource_attributes,omitempty" jsonschema_description:"map of resource attribute definitions with the key being the attribute name."`
 	Attributes         map[AttributeName]Attribute         `json:"attributes,omitempty" jsonschema_description:"map of attribute definitions with the key being the attribute name and value being described below."`
 	Metrics            map[MetricName]Metric               `json:"metrics,omitempty" jsonschema_description:"map of metric names with the key being the metric name and valuem being described below."`
-	Telemetry          map[MetricName]Metric               `json:"telemetry,omitempty" jsonschema_description:"map of metric names with the key being the metric name and valuem being described below."`
+	Telemetry          *Telemetry                          `json:"telemetry,omitempty" jsonschema_description:"Telemetry metadata for the component"`
 	ScopeName          string                              `json:"scope_name,omitempty"`
 	// ShortFolderName    string               `json:"-"`
 	Tests Tests `json:"tests,omitempty" jsonschema_description:"Lifecycle tests generated for this component."`
@@ -56,6 +57,10 @@ type Codeowners struct {
 	SeekingNew bool     `json:"seeking_new,omitempty"`
 }
 
+type Telemetry struct {
+	Metrics map[MetricName]Metric `json:"metrics,omitempty"`
+}
+
 type AttributeName string
 
 type ResourceAttribute struct {
@@ -87,19 +92,36 @@ type FilterConfig struct {
 type MetricName string
 
 type Metric struct {
-	Enabled               bool            `json:"enabled" jsonschema_description:"whether the metric is collected by default."`
-	Warnings              Warnings        `json:"warnings,omitempty" jsonschema_description:"warnings that will be shown to user under specified conditions."`
-	Description           string          `json:"description" jsonschema_description:"metric description."`
-	ExtendedDocumentation string          `json:"extended_documentation,omitempty" jsonschema_description:"extended documentation of the metric."`
-	Unit                  *string         `json:"unit" jsonschema:"oneof_type=string;number" jsonschema_description:"metric unit as defined by https://ucum.org/ucum.html."`
-	Sum                   *Sum            `json:"sum,omitempty" jsonschema:"oneof_required:metrictype" jsonschema_description:"metric type with its settings."`
-	Gauge                 *Gauge          `json:"gauge,omitempty" jsonschema:"oneof_required:metrictype" jsonschema_description:"metric type with its settings."`
-	Attributes            []AttributeName `json:"attributes,omitempty" jsonschema_description:"array of attributes that were defined in the attributes section that are emitted by this metric."`
+	Enabled               bool                `json:"enabled" jsonschema_description:"whether the metric is collected by default."`
+	Warnings              Warnings            `json:"warnings,omitempty" jsonschema_description:"warnings that will be shown to user under specified conditions."`
+	Description           string              `json:"description" jsonschema_description:"metric description."`
+	Stability             *TelemetryStability `json:"stability,omitempty" jsonschema_description:"the stability level of the metric."`
+	ExtendedDocumentation string              `json:"extended_documentation,omitempty" jsonschema_description:"extended documentation of the metric."`
+	Unit                  *string             `json:"unit" jsonschema:"oneof_type=string;number" jsonschema_description:"metric unit as defined by https://ucum.org/ucum.html."`
+	Sum                   *Sum                `json:"sum,omitempty" jsonschema:"oneof_required:metrictype" jsonschema_description:"metric type with its settings."`
+	Gauge                 *Gauge              `json:"gauge,omitempty" jsonschema:"oneof_required:metrictype" jsonschema_description:"metric type with its settings."`
+	Attributes            []AttributeName     `json:"attributes,omitempty" jsonschema_description:"array of attributes that were defined in the attributes section that are emitted by this metric."`
+}
+
+type TelemetryStability struct {
+	Level TelemetryStabilityLevel `json:"level,omitempty" jsonschema_description:"the stability level."`
+	From  string                  `json:"from,omitempty" jsonschema_description:"the version of the component from which the stability level is set."`
+}
+
+type TelemetryStabilityLevel string
+
+func (TelemetryStabilityLevel) JSONSchema() *jsonschema.Schema {
+	return &jsonschema.Schema{
+		Type: "string",
+		Enum: []any{
+			"development", "alpha", "beta", "stable", "deprecated", "unmaintained",
+		},
+	}
 }
 
 type Sum struct {
-	AggregationTemporality string `json:"aggregation_temporality" jsonschema_description:"whether reported values incorporate previous measurements (cumulative) or not (delta)."`
-	Mono                   bool   `json:"monotonic" jsonschema_description:"whether the metric is monotonic (no negative delta values)."`
+	AggregationTemporality string `json:"aggregation_temporality,omitempty" jsonschema_description:"whether reported values incorporate previous measurements (cumulative) or not (delta)."`
+	Mono                   bool   `json:"monotonic,omitempty" jsonschema_description:"whether the metric is monotonic (no negative delta values)."`
 	MetricValueType        string `json:"value_type" jsonschema_description:"type of number data point values."`
 	MetricInputType        string `json:"input_type,omitempty" jsonschema_description:"Indicates the type the metric needs to be parsed from. If set, the generated functions will parse the value from string to value_type."`
 }

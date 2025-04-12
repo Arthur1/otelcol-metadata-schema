@@ -193,11 +193,8 @@
           "description": "Required for components (Optional for subcomponents): A high-level view of the development status and use of this component"
         },
         "telemetry": {
-          "additionalProperties": {
-            "$ref": "#/$defs/Metric"
-          },
-          "description": "map of metric names with the key being the metric name and valuem being described below.",
-          "type": "object"
+          "$ref": "#/$defs/Telemetry",
+          "description": "Telemetry metadata for the component"
         },
         "tests": {
           "$ref": "#/$defs/Tests",
@@ -238,6 +235,10 @@
         "gauge": {
           "$ref": "#/$defs/Gauge",
           "description": "metric type with its settings."
+        },
+        "stability": {
+          "$ref": "#/$defs/TelemetryStability",
+          "description": "the stability level of the metric."
         },
         "sum": {
           "$ref": "#/$defs/Sum",
@@ -447,11 +448,46 @@
         }
       },
       "required": [
-        "aggregation_temporality",
-        "monotonic",
         "value_type"
       ],
       "type": "object"
+    },
+    "Telemetry": {
+      "additionalProperties": false,
+      "properties": {
+        "metrics": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Metric"
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "TelemetryStability": {
+      "additionalProperties": false,
+      "properties": {
+        "from": {
+          "description": "the version of the component from which the stability level is set.",
+          "type": "string"
+        },
+        "level": {
+          "$ref": "#/$defs/TelemetryStabilityLevel",
+          "description": "the stability level."
+        }
+      },
+      "type": "object"
+    },
+    "TelemetryStabilityLevel": {
+      "enum": [
+        "development",
+        "alpha",
+        "beta",
+        "stable",
+        "deprecated",
+        "unmaintained"
+      ],
+      "type": "string"
     },
     "Tests": {
       "additionalProperties": false,
