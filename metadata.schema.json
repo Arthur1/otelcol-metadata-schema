@@ -14,20 +14,18 @@
           },
           "type": "array"
         },
-        "exclude": {
-          "items": {
-            "$ref": "#/$defs/FilterConfig"
-          },
-          "type": "array"
-        },
-        "include": {
-          "items": {
-            "$ref": "#/$defs/FilterConfig"
-          },
-          "type": "array"
-        },
         "name_override": {
           "description": "this field can be used to override the actual attribute name defined by the key. It should be used if multiple metrics have different attributes with the same name.",
+          "type": "string"
+        },
+        "requirement_level": {
+          "description": "Optional: indicates requirement level of the attribute.",
+          "enum": [
+            "required",
+            "conditionally_required",
+            "recommended",
+            "opt_in"
+          ],
           "type": "string"
         },
         "type": {
@@ -64,32 +62,209 @@
             "type": "string"
           },
           "type": "array"
-        },
-        "seeking_new": {
-          "type": "boolean"
         }
       },
       "type": "object"
     },
-    "FilterConfig": {
+    "Component": {
       "additionalProperties": false,
-      "oneOf": [
-        {
-          "required": [
-            "strict",
-            "regexp"
-          ],
-          "title": "filter"
-        }
-      ],
       "properties": {
-        "regexp": {
+        "date": {
           "type": "string"
         },
-        "strict": {
+        "migration": {
           "type": "string"
         }
       },
+      "required": [
+        "date",
+        "migration"
+      ],
+      "type": "object"
+    },
+    "Config": {
+      "additionalProperties": false,
+      "properties": {
+        "$comment": {
+          "description": "Additional comments for developers (not included in JSON output).",
+          "type": "string"
+        },
+        "$defs": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Property"
+          },
+          "description": "Reusable schema definitions that can be referenced via $ref.",
+          "type": "object"
+        },
+        "description": {
+          "description": "Description of the configuration schema.",
+          "type": "string"
+        },
+        "properties": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Property"
+          },
+          "description": "Map of configuration properties that define the component's configuration fields.",
+          "type": "object"
+        },
+        "required": {
+          "description": "List of required property names. Properties in this list must be present in the config.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "type": {
+          "description": "The type of the configuration object. Typically \"object\" for component configs.",
+          "enum": [
+            "string",
+            "number",
+            "integer",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "Entity": {
+      "additionalProperties": false,
+      "properties": {
+        "brief": {
+          "type": "string"
+        },
+        "description": {
+          "items": {
+            "$ref": "#/$defs/EntityRef"
+          },
+          "type": "array"
+        },
+        "identity": {
+          "items": {
+            "$ref": "#/$defs/EntityRef"
+          },
+          "type": "array"
+        },
+        "relationships": {
+          "items": {
+            "$ref": "#/$defs/Relationship"
+          },
+          "type": "array"
+        },
+        "stability": {
+          "enum": [
+            "development",
+            "alpha",
+            "beta",
+            "release_candidate",
+            "stable"
+          ],
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "brief",
+        "identity"
+      ],
+      "type": "object"
+    },
+    "EntityRef": {
+      "additionalProperties": false,
+      "properties": {
+        "ref": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "ref"
+      ],
+      "type": "object"
+    },
+    "Event": {
+      "additionalProperties": false,
+      "properties": {
+        "attributes": {
+          "description": "array of attributes that were defined in the attributes section that are emitted by this event.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "description": {
+          "description": "event description.",
+          "type": "string"
+        },
+        "enabled": {
+          "description": "whether the event is collected by default.",
+          "type": "boolean"
+        },
+        "entity": {
+          "description": "the entity type this event is associated with.",
+          "type": "string"
+        },
+        "extended_documentation": {
+          "description": "extended documentation of the event.",
+          "type": "string"
+        },
+        "warnings": {
+          "$ref": "#/$defs/Warnings",
+          "description": "warnings that will be shown to user under specified conditions."
+        }
+      },
+      "required": [
+        "enabled",
+        "description"
+      ],
+      "type": "object"
+    },
+    "FeatureGate": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "description": "Required: description of the feature gate.",
+          "type": "string"
+        },
+        "from_version": {
+          "description": "Required: version when the feature gate was introduced.",
+          "type": "string"
+        },
+        "id": {
+          "description": "Required: unique identifier for the feature gate.",
+          "type": "string"
+        },
+        "reference_url": {
+          "description": "Required: URL with contextual information about the feature gate.",
+          "type": "string"
+        },
+        "stage": {
+          "description": "Required: lifecycle stage of the feature gate.",
+          "enum": [
+            "alpha",
+            "beta",
+            "stable",
+            "deprecated"
+          ],
+          "type": "string"
+        },
+        "to_version": {
+          "description": "Required for stable/deprecated gates: version when the feature gate reached stable stage.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "description",
+        "stage",
+        "from_version",
+        "reference_url"
+      ],
       "type": "object"
     },
     "Gauge": {
@@ -163,6 +338,47 @@
           "description": "map of attribute definitions with the key being the attribute name and value being described below.",
           "type": "object"
         },
+        "config": {
+          "$ref": "#/$defs/Config",
+          "description": "JSON Schema based definition for the component's configuration structure"
+        },
+        "deprecated_type": {
+          "description": "Optional: A deprecated type that is still available as an alias.",
+          "type": "string"
+        },
+        "description": {
+          "description": "Optional: Brief description of the component.",
+          "type": "string"
+        },
+        "display_name": {
+          "description": "Optional: Human-readable display name for the component.",
+          "type": "string"
+        },
+        "entities": {
+          "description": "Optional: array of entity definitions.",
+          "items": {
+            "$ref": "#/$defs/Entity"
+          },
+          "type": "array"
+        },
+        "events": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Event"
+          },
+          "description": "map of event names with the key being the event name and value being described below.",
+          "type": "object"
+        },
+        "feature_gates": {
+          "description": "Optional: list of feature gate definitions.",
+          "items": {
+            "$ref": "#/$defs/FeatureGate"
+          },
+          "type": "array"
+        },
+        "generated_package_name": {
+          "description": "Optional: The name of the package that mdatagen generates.",
+          "type": "string"
+        },
         "metrics": {
           "additionalProperties": {
             "$ref": "#/$defs/Metric"
@@ -174,6 +390,10 @@
           "description": "Required for subcomponents: The type of the parent component.",
           "type": "string"
         },
+        "reaggregation_enabled": {
+          "description": "Optional: Enables per-metric reaggregation config generation for metrics with attributes.",
+          "type": "boolean"
+        },
         "resource_attributes": {
           "additionalProperties": {
             "$ref": "#/$defs/ResourceAttribute"
@@ -182,6 +402,7 @@
           "type": "object"
         },
         "scope_name": {
+          "description": "Optional: Scope name for the telemetry generated by the component.",
           "type": "string"
         },
         "sem_conv_version": {
@@ -223,6 +444,10 @@
           },
           "type": "array"
         },
+        "deprecated": {
+          "$ref": "#/$defs/MetricDeprecated",
+          "description": "Deprecation information for the metric. Required when stability is deprecated."
+        },
         "description": {
           "description": "metric description.",
           "type": "string"
@@ -231,6 +456,10 @@
           "description": "whether the metric is collected by default.",
           "type": "boolean"
         },
+        "entity": {
+          "description": "the entity type this metric is associated with.",
+          "type": "string"
+        },
         "extended_documentation": {
           "description": "extended documentation of the metric.",
           "type": "string"
@@ -238,6 +467,21 @@
         "gauge": {
           "$ref": "#/$defs/Gauge",
           "description": "metric type with its settings."
+        },
+        "semantic_convention": {
+          "$ref": "#/$defs/SemanticConvention",
+          "description": "Optional: the reference to a semantic convention."
+        },
+        "stability": {
+          "description": "Optional: the stability level of the metric.",
+          "enum": [
+            "development",
+            "alpha",
+            "beta",
+            "stable",
+            "deprecated"
+          ],
+          "type": "string"
         },
         "sum": {
           "$ref": "#/$defs/Sum",
@@ -266,6 +510,175 @@
       ],
       "type": "object"
     },
+    "MetricDeprecated": {
+      "additionalProperties": false,
+      "properties": {
+        "note": {
+          "description": "Required: migration note.",
+          "type": "string"
+        },
+        "since": {
+          "description": "Required: version when the metric was deprecated.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "since",
+        "note"
+      ],
+      "type": "object"
+    },
+    "Property": {
+      "additionalProperties": false,
+      "properties": {
+        "$ref": {
+          "description": "Reference to another schema definition.",
+          "type": "string"
+        },
+        "additionalProperties": {
+          "enum": [
+            "bool",
+            "object"
+          ],
+          "type": "string"
+        },
+        "allOf": {
+          "description": "All of these schemas must be satisfied (schema composition).",
+          "items": {
+            "$ref": "#/$defs/Property"
+          },
+          "type": "array"
+        },
+        "const": true,
+        "default": true,
+        "deprecated": {
+          "description": "Indicates if this property is deprecated.",
+          "type": "boolean"
+        },
+        "description": {
+          "description": "Description of this configuration property.",
+          "type": "string"
+        },
+        "enum": {
+          "description": "For string types - allowed values.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "examples": {
+          "description": "Example values for this property.",
+          "items": true,
+          "type": "array"
+        },
+        "exclusiveMaximum": {
+          "description": "For number/integer types - exclusive maximum value.",
+          "type": "number"
+        },
+        "exclusiveMinimum": {
+          "description": "For number/integer types - exclusive minimum value.",
+          "type": "number"
+        },
+        "format": {
+          "description": "For string types - format specification (e.g., 'uri', 'email', 'date-time', 'duration').",
+          "type": "string"
+        },
+        "items": {
+          "$ref": "#/$defs/Property",
+          "description": "For array types - schema for array items."
+        },
+        "maxItems": {
+          "description": "For array types - maximum number of items",
+          "type": "integer"
+        },
+        "maxLength": {
+          "description": "For string types - maximum length.",
+          "type": "integer"
+        },
+        "maxProperties": {
+          "description": "For object types - maximum number of properties allowed.",
+          "type": "integer"
+        },
+        "maximum": {
+          "description": "For number/integer types - maximum value (inclusive).",
+          "type": "number"
+        },
+        "minItems": {
+          "description": "For array types - minimum number of items",
+          "type": "integer"
+        },
+        "minLength": {
+          "description": "For string types - minimum length.",
+          "type": "integer"
+        },
+        "minProperties": {
+          "description": "For object types - minimum number of properties required.",
+          "type": "integer"
+        },
+        "minimum": {
+          "description": "For number/integer types - minimum value (inclusive).",
+          "type": "number"
+        },
+        "multipleOf": {
+          "description": "For number types - value must be a multiple of this number.",
+          "type": "number"
+        },
+        "pattern": {
+          "description": "For string types - regular expression pattern that the value must match.",
+          "type": "string"
+        },
+        "properties": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Property"
+          },
+          "description": "For object types - properties of the nested object.",
+          "type": "object"
+        },
+        "type": {
+          "description": "The JSON Schema type of this property.",
+          "enum": [
+            "string",
+            "number",
+            "integer",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ],
+          "type": "string"
+        },
+        "uniqueItems": {
+          "description": "For array types - whether all items must be unique.",
+          "type": "boolean"
+        },
+        "x-customType": {
+          "type": "string"
+        },
+        "x-optional": {
+          "type": "boolean"
+        },
+        "x-pointer": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "Relationship": {
+      "additionalProperties": false,
+      "properties": {
+        "target": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "target"
+      ],
+      "type": "object"
+    },
     "ResourceAttribute": {
       "additionalProperties": false,
       "properties": {
@@ -281,18 +694,6 @@
           "description": "array of attribute values if they are static values (currently, only string type is supported).",
           "items": {
             "type": "string"
-          },
-          "type": "array"
-        },
-        "exclude": {
-          "items": {
-            "$ref": "#/$defs/FilterConfig"
-          },
-          "type": "array"
-        },
-        "include": {
-          "items": {
-            "$ref": "#/$defs/FilterConfig"
           },
           "type": "array"
         },
@@ -318,6 +719,19 @@
         "description",
         "enabled",
         "type"
+      ],
+      "type": "object"
+    },
+    "SemanticConvention": {
+      "additionalProperties": false,
+      "properties": {
+        "ref": {
+          "description": "The semantic convention reference.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "ref"
       ],
       "type": "object"
     },
@@ -371,7 +785,9 @@
         "traces_to_metrics",
         "metrics_to_metrics",
         "logs_to_metrics",
-        "extension"
+        "extension",
+        "converter",
+        "provider"
       ],
       "type": "string"
     },
@@ -387,13 +803,23 @@
             "connector",
             "extension",
             "cmd",
-            "pkg"
+            "pkg",
+            "scraper",
+            "converter",
+            "provider"
           ],
           "type": "string"
         },
         "codeowners": {
           "$ref": "#/$defs/Codeowners",
           "description": "Metadata related to codeowners of the component"
+        },
+        "deprecation": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Component"
+          },
+          "description": "The deprecation information for deprecated components.",
+          "type": "object"
         },
         "distributions": {
           "description": "The distributions that this component is bundled with (For example core or contrib). See statusdata.go for a list of common distros.",
